@@ -1,0 +1,46 @@
+{
+    "name": "arabic-pdf-export/arabic-pdf-export",
+    "description": "A Laravel package for generating PDFs with proper Arabic text support",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arabic PDF Export",
+            "email": "support@arabicpdf.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^9.0|^10.0|^11.0",
+        "dompdf/dompdf": "^2.0",
+        "tecnickcom/tcpdf": "^6.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^10.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ArabicPdfExport\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ArabicPdfExport\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ArabicPdfExport\\ServiceProvider"
+            ],
+            "aliases": {
+                "ArabicPdf": "ArabicPdfExport\\Facades\\ArabicPdf"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
