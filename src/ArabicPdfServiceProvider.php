@@ -5,7 +5,7 @@ namespace ArabicPdfExport;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 
-class ServiceProvider extends \Illuminate\Support\ServiceProvider
+class ArabicPdfServiceProvider extends ServiceProvider
 {
     /**
      * Register services.

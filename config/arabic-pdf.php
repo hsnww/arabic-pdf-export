@@ -9,9 +9,10 @@ return [
     | Choose the PDF engine to use. Available options:
     | - tcpdf: More reliable for Arabic text, better font support
     | - dompdf: Faster rendering, good for simple documents
+    | - laravel-dompdf: Use existing Laravel DomPDF package
     |
     */
-    'engine' => env('ARABIC_PDF_ENGINE', 'tcpdf'),
+    'engine' => env('ARABIC_PDF_ENGINE', 'laravel-dompdf'),
 
     /*
     |--------------------------------------------------------------------------

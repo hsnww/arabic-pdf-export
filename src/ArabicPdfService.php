@@ -2,10 +2,23 @@
 
 namespace ArabicPdfExport;
 
-use TCPDF;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Illuminate\Support\Facades\Storage;
+
+// Check if TCPDF is available
+if (class_exists('TCPDF')) {
+    class_alias('TCPDF', 'ArabicPdfExport\TCPDF');
+}
+
+// Check if DomPDF is available
+if (class_exists('Dompdf\Dompdf')) {
+    class_alias('Dompdf\Dompdf', 'ArabicPdfExport\Dompdf');
+    class_alias('Dompdf\Options', 'ArabicPdfExport\DompdfOptions');
+}
+
+// Check if Laravel DomPDF is available
+if (class_exists('Barryvdh\DomPDF\PDF')) {
+    class_alias('Barryvdh\DomPDF\PDF', 'ArabicPdfExport\LaravelDompdf');
+}
 
 class ArabicPdfService
 {
@@ -54,7 +67,11 @@ class ArabicPdfService
      */
     public function generateWithTcpdf(string $html, array $options = [])
     {
-        $pdf = new TCPDF(
+        if (!class_exists('TCPDF')) {
+            throw new \Exception('TCPDF is not installed. Please install it: composer require tecnickcom/tcpdf');
+        }
+
+        $pdf = new \TCPDF(
             $this->config['orientation'],
             'mm',
             $this->config['page_format'],
@@ -105,14 +122,18 @@ class ArabicPdfService
      */
     public function generateWithDompdf(string $html, array $options = [])
     {
-        $options_dompdf = new Options();
+        if (!class_exists('Dompdf\Dompdf')) {
+            throw new \Exception('DomPDF is not installed. Please install it: composer require dompdf/dompdf');
+        }
+
+        $options_dompdf = new \Dompdf\Options();
         $options_dompdf->set('defaultFont', $this->defaultFont);
         $options_dompdf->set('isRemoteEnabled', true);
         $options_dompdf->set('isHtml5ParserEnabled', true);
         $options_dompdf->set('defaultMediaType', 'print');
         $options_dompdf->set('isFontSubsettingEnabled', true);
 
-        $dompdf = new Dompdf($options_dompdf);
+        $dompdf = new \Dompdf\Dompdf($options_dompdf);
 
         // Load HTML content
         $dompdf->loadHtml($this->prepareArabicHtml($html));
@@ -127,12 +148,30 @@ class ArabicPdfService
     }
 
     /**
+     * Generate PDF using Laravel DomPDF engine
+     */
+    public function generateWithLaravelDompdf(string $html, array $options = [])
+    {
+        if (!class_exists('Barryvdh\DomPDF\PDF')) {
+            throw new \Exception('Laravel DomPDF is not installed. Please install it: composer require barryvdh/laravel-dompdf');
+        }
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadHTML($this->prepareArabicHtml($html));
+        $pdf->setPaper($this->config['page_format'], $this->config['orientation']);
+        
+        return $pdf;
+    }
+
+    /**
      * Generate PDF with the configured engine
      */
     public function generate(string $html, array $options = [])
     {
         if ($this->config['engine'] === 'tcpdf') {
             return $this->generateWithTcpdf($html, $options);
+        } elseif ($this->config['engine'] === 'laravel-dompdf') {
+            return $this->generateWithLaravelDompdf($html, $options);
         } else {
             return $this->generateWithDompdf($html, $options);
         }
@@ -147,6 +186,8 @@ class ArabicPdfService
         
         if ($this->config['engine'] === 'tcpdf') {
             $pdf->Output($filename, 'F');
+        } elseif ($this->config['engine'] === 'laravel-dompdf') {
+            $pdf->save($filename);
         } else {
             file_put_contents($filename, $pdf->output());
         }
@@ -163,6 +204,8 @@ class ArabicPdfService
         
         if ($this->config['engine'] === 'tcpdf') {
             $pdf->Output($filename, 'D');
+        } elseif ($this->config['engine'] === 'laravel-dompdf') {
+            return $pdf->download($filename);
         } else {
             $pdf->stream($filename);
         }
@@ -177,6 +220,8 @@ class ArabicPdfService
         
         if ($this->config['engine'] === 'tcpdf') {
             return $pdf->Output('', 'S');
+        } elseif ($this->config['engine'] === 'laravel-dompdf') {
+            return $pdf->output();
         } else {
             return $pdf->output();
         }
