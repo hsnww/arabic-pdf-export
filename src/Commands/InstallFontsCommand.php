@@ -24,8 +24,17 @@ class InstallFontsCommand extends Command
     {
         $this->info('Installing Arabic fonts...');
 
-        $sourcePath = __DIR__ . '/../fonts/';
+        // Get the package root directory
+        $packageRoot = dirname(dirname(__DIR__));
+        $sourcePath = $packageRoot . '/src/fonts/';
         $destinationPath = public_path('fonts/arabic/');
+
+        // Check if source fonts directory exists
+        if (!File::exists($sourcePath)) {
+            $this->error("Source fonts directory not found: {$sourcePath}");
+            $this->error("Please make sure the package is properly installed.");
+            return 1;
+        }
 
         // Create destination directory if it doesn't exist
         if (!File::exists($destinationPath)) {
