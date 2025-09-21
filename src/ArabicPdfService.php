@@ -29,7 +29,7 @@ class ArabicPdfService
     public function __construct(array $config = [])
     {
         $this->config = array_merge([
-            'engine' => 'tcpdf', // 'tcpdf' or 'dompdf'
+            'engine' => 'tcpdf', // 'tcpdf', 'dompdf', or 'laravel-dompdf'
             'page_format' => 'A4',
             'orientation' => 'P',
             'margin_top' => 15,
@@ -41,6 +41,14 @@ class ArabicPdfService
         ], $config);
 
         $this->registerFonts();
+        
+        // Auto-detect and set recommended engine if not specified
+        if (!isset($config['engine'])) {
+            $recommendedEngine = $this->getRecommendedEngine();
+            if ($recommendedEngine) {
+                $this->config['engine'] = $recommendedEngine;
+            }
+        }
     }
 
     /**
@@ -335,6 +343,90 @@ class ArabicPdfService
     public function getAvailableFonts()
     {
         return array_keys($this->fonts);
+    }
+
+    /**
+     * Get available PDF engines
+     */
+    public function getAvailableEngines()
+    {
+        $engines = [];
+        
+        if (class_exists('TCPDF')) {
+            $engines['tcpdf'] = 'TCPDF (Recommended for Arabic)';
+        }
+        
+        if (class_exists('Dompdf\Dompdf')) {
+            $engines['dompdf'] = 'DomPDF (Fast rendering)';
+        }
+        
+        if (class_exists('Barryvdh\DomPDF\PDF')) {
+            $engines['laravel-dompdf'] = 'Laravel DomPDF (Laravel integration)';
+        }
+        
+        return $engines;
+    }
+
+    /**
+     * Check if PDF engine is available
+     */
+    public function isEngineAvailable($engine)
+    {
+        $availableEngines = $this->getAvailableEngines();
+        return isset($availableEngines[$engine]);
+    }
+
+    /**
+     * Get recommended engine based on available packages
+     */
+    public function getRecommendedEngine()
+    {
+        $engines = $this->getAvailableEngines();
+        
+        // Priority order
+        $priority = ['tcpdf', 'laravel-dompdf', 'dompdf'];
+        
+        foreach ($priority as $engine) {
+            if (isset($engines[$engine])) {
+                return $engine;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Check system requirements
+     */
+    public function checkRequirements()
+    {
+        $requirements = [
+            'php_version' => version_compare(PHP_VERSION, '7.4.0', '>='),
+            'laravel_support' => class_exists('Illuminate\Support\ServiceProvider'),
+            'pdf_engines' => $this->getAvailableEngines(),
+        ];
+
+        $requirements['status'] = !empty($requirements['pdf_engines']) && $requirements['php_version'] && $requirements['laravel_support'];
+        
+        return $requirements;
+    }
+
+    /**
+     * Get installation instructions for missing packages
+     */
+    public function getInstallationInstructions()
+    {
+        $instructions = [];
+        $availableEngines = $this->getAvailableEngines();
+        
+        if (empty($availableEngines)) {
+            $instructions[] = "No PDF engines found. Please install one of the following:";
+            $instructions[] = "• TCPDF (Recommended): composer require tecnickcom/tcpdf";
+            $instructions[] = "• DomPDF: composer require dompdf/dompdf";
+            $instructions[] = "• Laravel DomPDF: composer require barryvdh/laravel-dompdf";
+        }
+        
+        return $instructions;
     }
 
     /**

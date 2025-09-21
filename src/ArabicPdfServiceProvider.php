@@ -43,6 +43,7 @@ class ArabicPdfServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Commands\InstallFontsCommand::class,
+                Commands\CheckRequirementsCommand::class,
             ]);
         }
     }
