@@ -53,10 +53,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "php artisan vendor:publish --provider=\"ArabicPdfExport\\ServiceProvider\" --tag=\"config\" --force"
+            "php artisan vendor:publish --provider=\"ArabicPdfExport\\ArabicPdfServiceProvider\" --tag=\"config\" --force"
         ],
         "post-update-cmd": [
-            "php artisan vendor:publish --provider=\"ArabicPdfExport\\ServiceProvider\" --tag=\"config\" --force"
+            "php artisan vendor:publish --provider=\"ArabicPdfExport\\ArabicPdfServiceProvider\" --tag=\"config\" --force"
         ]
     },
     "homepage": "https://github.com/hsnww/arabic-pdf-export",

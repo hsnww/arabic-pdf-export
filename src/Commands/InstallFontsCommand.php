@@ -24,7 +24,7 @@ class InstallFontsCommand extends Command
     {
         $this->info('Installing Arabic fonts...');
 
-        $sourcePath = __DIR__ . '/../../fonts/';
+        $sourcePath = __DIR__ . '/../fonts/';
         $destinationPath = public_path('fonts/arabic/');
 
         // Create destination directory if it doesn't exist

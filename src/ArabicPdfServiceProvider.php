@@ -33,7 +33,7 @@ class ArabicPdfServiceProvider extends ServiceProvider
 
         // Publish fonts
         $this->publishes([
-            __DIR__ . '/fonts/' => public_path('fonts/arabic/'),
+            __DIR__ . '/../fonts/' => public_path('fonts/arabic/'),
         ], 'fonts');
 
         // Register Blade directives
